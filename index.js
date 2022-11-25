@@ -203,7 +203,10 @@ const clearNotLocked = (e) => {
     const lockedIndices = rect.filter(i => cells[i].classList.contains("flag"))
 
     if(lockedIndices.length >= numberOfMines){
-        selectCell(index, true)
+        rect.every(i => {
+            selectCell(i)
+            return !suspendGame
+        })
     }else{
 
         const openingIndices = rect.filter(i => !cells[i].classList.contains("opened") && !cells[i].classList.contains("flag"))
