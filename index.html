@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <script src="index.js"></script>
+        <link rel="stylesheet" href="index.css"/>
+    </head>
+    <body>
+        <div id="viewport" class="viewport">
+            <div id="titleBar" class="title-bar">
+                <div class="icon-area">
+                    <img class="ico" src="./resources/icon.ico"/>
+                    <span>Minesweeper</span>
+                </div>
+                <div id="title" class="title"></div>
+                <div class="window-area">
+                    <div id="minimize" class="minimize">&minus;</div>
+                    <div id="maximize" class="maximize"><div id="resizeBtn"></div></div>
+                    <div id="close" class="close">&times;</div>
+                </div>
+            </div>
+            <div class="main">
+                <div class="buttons">
+                    <button class="btn" id="start">Start</button>
+                    <button class="btn" id="retry">Retry</button>
+                </div>
+                <div id="board" class="board medium"></div>
+            </div>
+            <select class="mode" id="mode">
+                <option value="medium">Medium</option>
+                <option value="expert">Expert</option>
+            </select>
+        </div>
+    </body>
+</html>

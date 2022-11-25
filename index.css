@@ -1,0 +1,251 @@
+html, body{
+    width:100%;
+    height:100%;
+}
+
+body{
+    margin:0;
+    font-family: Segoe UI,sans-serif;
+}
+
+:root {
+    --medium: 16;
+    --expert: 24;
+}
+
+.viewport{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.title-bar{
+    height:25px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #202020;
+    color: #c3bebe;
+    cursor: default;
+    user-select: none;
+    -webkit-app-region: drag;
+}
+
+.title{
+    font-size: 11px;
+    flex: 1 1 auto;
+    text-align: center;
+    height: 15px;
+    color: #b9acac;
+    line-height: 15px;
+}
+
+.icon-area{
+    font-size: 12px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ico{
+    width: 16px;
+    height: 16px;
+    margin: 0 5px;
+}
+
+.window-area{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+.minimize,
+.maximize,
+.close{
+    width: 45px;
+    height: 100%;
+    text-align: center;
+    user-select: none;
+    position: relative;
+    -webkit-app-region: no-drag;
+}
+
+.maximize{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.minimize:hover,
+.maximize:hover{
+    background-color: #5f5b5b;
+}
+
+.maximize:hover .minbtn,
+.maximize:hover .maxbtn{
+    background-color: #5f5b5b;
+}
+
+.minbtn,
+.maxbtn{
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border: 1px solid #c3bebe;
+    background-color: #383737;
+    pointer-events: none;
+}
+
+.maxbtn::after{
+    content: "";
+    width: 7px;
+    height: 7px;
+    position: absolute;
+    top: -3px;
+    left: 1px;
+    z-index: -1;
+    border: 1px solid #c3bebe;
+}
+
+.close:hover{
+    background-color: #da0707c4;
+    color: #fff;
+}
+
+.main{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    background-color: #1e2b42;
+    flex-direction: column;
+}
+
+.buttons{
+    position: relative;
+    width: 640px;
+    display: flex;
+    justify-content: space-around;
+    margin: 30px 0px 60px 0px;
+}
+
+.mode{
+    position: fixed;
+    padding: 10px 20px;
+    font-size: 110%;
+    right: 20px;
+    bottom: 20px;
+    background-color: #b7aaaa;
+}
+
+.btn{
+    padding: 10px 20px;
+    font-size: 200%;
+    border-radius: 6px;
+}
+
+.board{
+    width: 640px;
+    height: 640px;
+    max-width: 640px;
+    max-height: 640px;
+    border: 1px solid #000;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.lock{
+    pointer-events: none;
+}
+
+.cell-container{
+    background-color: #1e2b42;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.medium .cell-container{
+    width: calc(100% / var(--medium));
+    height: calc(100% / var(--medium));
+}
+
+.expert .cell-container{
+    width: calc(100% / var(--expert));
+    height: calc(100% / var(--expert));
+}
+
+.cell{
+    width: calc(100% - 2px);
+    height: calc(100% - 5px);
+    color: #000;
+    position: relative;
+    background-image: radial-gradient(circle, #b6dcfd, #9dd0fd, #84c3fc, #6ab6fc, #4ba9fb);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    border-radius: 2px;
+    font-weight: 500;
+    font-size: 120%;
+    color: #519bdb;
+}
+
+.two{
+    color: #e91313;
+}
+
+.three{
+    color: #528930;
+}
+
+.opened{
+    background-color: #fff;
+    background-image: none;
+    box-shadow: 1px 1px 5px #ccc;
+}
+
+.flag::after{
+    content: "";
+    background-image: url(./resources/flag.svg);
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+}
+
+.burnt{
+    background-color: #ad2929;
+    background-image: url(./resources/fire.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+}
+
+.mine{
+    background-color: #fff;
+    background-image: url(./resources/fire.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+}
+
+.blink {
+    animation: AnimationName 0.5s ease;
+}
+
+@keyframes AnimationName {
+    0%{outline: 2px solid #fff;outline-offset: -2px;};
+    /*50%{background-image: radial-gradient(circle, #b6dcfd, #b6dcfd, #b6dcfd, #b6dcfd, #b6dcfd);}*/
+    100%{background-image: radial-gradient(circle, #b6dcfd, #9dd0fd, #84c3fc, #6ab6fc, #4ba9fb);}
+}
