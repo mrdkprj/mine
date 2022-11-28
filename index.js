@@ -119,7 +119,8 @@ const setup = () => {
         cell.setAttribute("data-index", e)
         container.addEventListener("click", onCellClick)
         container.addEventListener("contextmenu", onCellRightClick)
-        container.addEventListener("mouseup", clearNotLocked)
+        container.addEventListener("mouseup", onMouseUp)
+        container.addEventListener("dblclick", onDblClick)
         cell.classList.add("cell")
 
         container.append(cell)
@@ -185,9 +186,18 @@ const onCellRightClick = (e) => {
     }
 }
 
-const clearNotLocked = (e) => {
+const onDblClick = (e) => {
+    clearNotLocked(e);
+}
+
+const onMouseUp = (e) => {
 
     if(e.buttons === 0) return;
+
+    clearNotLocked(e);
+}
+
+const clearNotLocked = (e) => {
 
     const target = e.target.children.length ? e.target.children[0] : e.target;
 
