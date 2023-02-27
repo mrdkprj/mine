@@ -13,6 +13,11 @@ builder.build({
             },
             "icon": "./resources/icon.ico"
         },
+        linux:{
+            target: "deb",
+            category: "Game",
+            icon: "./resources/icon.icns"
+        },
         "nsis": {
             "oneClick": true,
             "allowToChangeInstallationDirectory": false,
