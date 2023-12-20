@@ -12,6 +12,7 @@ const {
                   "minimize",
                   "toggle-maximize",
                   "close",
+                  "game-end"
               ];
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);

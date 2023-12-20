@@ -1,17 +1,19 @@
+<!DOCTYPE html>
 <html>
     <head>
-        <script src="index.js"></script>
+        <meta charset="UTF-8" />
         <link rel="stylesheet" href="index.css"/>
+        <script type="module" src="index.ts" defer></script>
     </head>
     <body>
         <div id="viewport" class="viewport">
-            <div id="titleBar" class="title-bar">
-                <div class="icon-area">
-                    <img class="ico" src="./resources/icon.ico"/>
+            <div data-tauri-drag-region id="titleBar" class="title-bar">
+                <div data-tauri-drag-region class="icon-area">
+                    <img class="ico" src="/icon.ico"/>
                     <span>Minesweeper</span>
                 </div>
-                <div id="title" class="title"></div>
-                <div class="window-area">
+                <div data-tauri-drag-region id="title" class="title"></div>
+                <div data-tauri-drag-region class="window-area">
                     <div id="minimize" class="minimize">&minus;</div>
                     <div id="maximize" class="maximize"><div id="resizeBtn"></div></div>
                     <div id="close" class="close">&times;</div>

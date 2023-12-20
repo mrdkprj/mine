@@ -1,34 +1,47 @@
+import { appWindow, PhysicalSize, PhysicalPosition } from "@tauri-apps/api/window"
+import { dialog, fs, path } from "@tauri-apps/api";
+
+const defaultConfig:Config = {
+    bounds: {
+        size:{
+            width:1200,
+            height:800,
+        },
+        position:{
+            x:0,
+            y:0
+        }
+    },
+    isMaximized: false
+}
+
+let configFilePath = "";
+let config:Config;
+
 let isMaximized = false;
-let resizeBtn;
-let board;
-let mode = "expert"
+let resizeBtn:HTMLElement | null;
+let board:HTMLElement | null;
+let mode:mode = "expert"
 
 let suspendGame = false;
+let opendCellsCount  = 0;
 let numberOfCellsToOpen = 0;
 let baseNumberOfCells = 0;
 let numberOfMineCells = 0;
 
-const NUMBER_OF_CELLS = {
+const NUMBER_OF_CELLS:{[key in mode]:number} = {
     medium: 16,
     expert: 24,
 }
-const NUMBER_OF_MINES = {
+const NUMBER_OF_MINES:{[key in mode]:number} = {
     medium: 40,
     expert: 99,
 }
 
-const mineCellIndices = []
-const cells = []
+const mineCellIndices:number[] = []
+const cells:HTMLElement[] = []
 
-window.onload = () => {
-
-    resizeBtn = document.getElementById("resizeBtn")
-    board = document.getElementById("board")
-    document.getElementById("mode").addEventListener("change", onModeChange);
-    setup();
-}
-
-window.addEventListener("resize", e => {
+window.addEventListener("resize", _e => {
     //board.style.width = `${window.innerWidth / 2}px`
     //board.style.height = `${window.innerWidth / 2}px`
 })
@@ -37,11 +50,14 @@ document.addEventListener("contextmenu", e => e.preventDefault())
 
 document.addEventListener("keydown", e => {
     if(e.key === "Escape"){
-        document.getElementById("viewport").style.display = "none"
+        const viewport = document.getElementById("viewport")
+        if(viewport) viewport.style.display = "none"
     }
 })
 
 document.addEventListener("click", (e) =>{
+
+    if(!e.target || !(e.target instanceof HTMLElement)) return;
 
     if(e.target.id === "start"){
         setup()
@@ -73,13 +89,16 @@ const onRetry = () => {
         cell.className = "cell"
         cell.textContent = ""
     })
-    board.classList.remove("lock")
+    board?.classList.remove("lock")
 }
 
-const onModeChange = (e) => {
-    board.classList.remove(mode)
-    mode = e.target.value;
-    board.classList.add(mode)
+const onModeChange = (e:Event) => {
+
+    if(!e.target || !(e.target instanceof HTMLSelectElement)) return;
+
+    board?.classList.remove(mode)
+    mode = e.target.value as mode;
+    board?.classList.add(mode)
     setup();
 }
 
@@ -89,6 +108,8 @@ const init = () => {
 }
 
 const setup = () => {
+
+    if(!board) return
 
     init();
 
@@ -116,7 +137,7 @@ const setup = () => {
 
         container.classList.add("cell-container")
         const cell = document.createElement("div");
-        cell.setAttribute("data-index", e)
+        cell.setAttribute("data-index", String(e))
         container.addEventListener("click", onCellClick)
         container.addEventListener("contextmenu", onCellRightClick)
         container.addEventListener("mouseup", onMouseUp)
@@ -134,8 +155,8 @@ const setup = () => {
 
 }
 
-const onLoseGame = (index) => {
-    board.classList.add("lock")
+const onLoseGame = (index:number) => {
+    board?.classList.add("lock")
     cells[index].classList.add("burnt")
     suspendGame = true;
     setTimeout(() => reveal(), 500)
@@ -143,20 +164,22 @@ const onLoseGame = (index) => {
 
 const onWin = () => {
     suspendGame = true;
-    board.classList.add("lock")
+    board?.classList.add("lock")
     mineCellIndices.forEach(i => {
         if(!cells[i].classList.contains("flag")){
             cells[i].classList.add("mine")
         }
     })
-    window.api.send("game-end")
+    dialog.message("Done")
 }
 
 const reveal = () => {
     mineCellIndices.forEach(i => cells[i].classList.add("burnt"))
 }
 
-const onCellClick = (e) => {
+const onCellClick = (e:MouseEvent) => {
+
+    if(!e.target || !(e.target instanceof HTMLElement)) return;
 
     const target = e.target.children.length ? e.target.children[0] : e.target;
 
@@ -164,12 +187,14 @@ const onCellClick = (e) => {
 
     if(target.classList.contains("opened")) return;
 
-    const index = parseInt(target.getAttribute("data-index"))
+    const index = parseInt(target.getAttribute("data-index") ?? "")
 
     selectCell(index);
 }
 
-const onCellRightClick = (e) => {
+const onCellRightClick = (e:MouseEvent) => {
+
+    if(!e.target || !(e.target instanceof HTMLElement)) return;
 
     e.preventDefault();
 
@@ -186,18 +211,20 @@ const onCellRightClick = (e) => {
     }
 }
 
-const onDblClick = (e) => {
+const onDblClick = (e:MouseEvent) => {
     clearNotLocked(e);
 }
 
-const onMouseUp = (e) => {
+const onMouseUp = (e:MouseEvent) => {
 
     if(e.buttons === 0) return;
 
     clearNotLocked(e);
 }
 
-const clearNotLocked = (e) => {
+const clearNotLocked = (e:MouseEvent) => {
+
+    if(!e.target || !(e.target instanceof HTMLElement)) return;
 
     const target = e.target.children.length ? e.target.children[0] : e.target;
 
@@ -205,9 +232,9 @@ const clearNotLocked = (e) => {
 
     if(!valid) return;
 
-    const index = parseInt(target.getAttribute("data-index"))
+    const index = parseInt(target.getAttribute("data-index") ?? "")
 
-    const numberOfMines = parseInt(target.textContent);
+    const numberOfMines = parseInt(target.textContent ?? "");
 
     const rect = getRect(index);
     const lockedIndices = rect.filter(i => cells[i].classList.contains("flag"))
@@ -230,7 +257,7 @@ const clearNotLocked = (e) => {
 
 }
 
-const check = (index, adjecantIndices) => {
+const check = (index:number, adjecantIndices:number[]) => {
 
     if(suspendGame) return;
 
@@ -247,7 +274,7 @@ const check = (index, adjecantIndices) => {
     }
 }
 
-const displayMineCount = (index, count) => {
+const displayMineCount = (index:number, count:number) => {
 
     if(count === 2){
         cells[index].classList.add("two")
@@ -257,10 +284,10 @@ const displayMineCount = (index, count) => {
         cells[index].classList.add("three")
     }
 
-    cells[index].textContent = count
+    cells[index].textContent = String(count)
 }
 
-const isValid = (index) => {
+const isValid = (index:number) => {
 
     if(index < 0) return false;
 
@@ -270,7 +297,7 @@ const isValid = (index) => {
 }
 
 
-const selectCell = (index, ignoreOpened = false) => {
+const selectCell = (index:number, ignoreOpened = false) => {
 
     if(suspendGame) return;
 
@@ -312,7 +339,7 @@ const POSITION = {
     LastColumn:7,
 }
 
-const getPosition = (index) => {
+const getPosition = (index:number) => {
 
     if(index === 0){
         return POSITION.TopLeft
@@ -350,7 +377,7 @@ const getPosition = (index) => {
 
 }
 
-const getRect = (index) => {
+const getRect = (index:number) => {
 
     const poistion = getPosition(index);
 
@@ -442,32 +469,128 @@ const getRect = (index) => {
 const changeMaximizeIcon = () => {
 
     if(isMaximized){
-        resizeBtn.classList.remove("minbtn");
-        resizeBtn.classList.add("maxbtn");
+        resizeBtn?.classList.remove("minbtn");
+        resizeBtn?.classList.add("maxbtn");
     }else{
-        resizeBtn.classList.remove("maxbtn");
-        resizeBtn.classList.add("minbtn");
+        resizeBtn?.classList.remove("maxbtn");
+        resizeBtn?.classList.add("minbtn");
     }
 }
 
 const minimize = () => {
-    window.api.send("minimize")
+    appWindow.minimize()
 }
 
 const toggleMaximize = () => {
-    window.api.send("toggle-maximize")
+    appWindow.toggleMaximize();
     isMaximized = !isMaximized;
     changeMaximizeIcon();
 }
 
-const close = () => {
-    window.api.send("close");
-}
+window.addEventListener("DOMContentLoaded", async () => {
 
-const prepare = (config) => {
-    isMaximized = config.bounds.isMaximized;
+    await appready()
+
+    resizeBtn = document.getElementById("resizeBtn")
+    board = document.getElementById("board")
+    document.getElementById("mode")?.addEventListener("change", onModeChange);
+    setup();
+
+    isMaximized = config.isMaximized;
     changeMaximizeIcon();
-    window.api.send("game-end")
+
+    await appWindow.setSize(new PhysicalSize(config.bounds.size.width, config.bounds.size.height))
+    await appWindow.setPosition(new PhysicalPosition(config.bounds.position.x, config.bounds.position.y))
+
+    if(isMaximized){
+        await appWindow.maximize();
+    }
+
+    await appWindow.show();
+
+})
+
+async function appready(){
+
+    const appDataDir = await path.appDataDir();
+    const currentDirectory = await path.join(appDataDir, "temp");
+
+    await exists(currentDirectory, true);
+
+    configFilePath = await path.join(currentDirectory,"minesweeper.config.json");
+
+    const fileExists = await exists(configFilePath, false);
+
+    if(fileExists){
+
+        const rawData = await fs.readTextFile(configFilePath);
+        config = createConfig(JSON.parse(rawData))
+
+    }else{
+        config = defaultConfig
+        await fs.writeTextFile(configFilePath, JSON.stringify(defaultConfig));
+
+    }
 }
 
-window.api.receive("config", data => prepare(data.config))
+const createConfig = (rawConfig:any):Config => {
+
+    const config = {...defaultConfig} as any;
+
+    Object.keys(rawConfig).forEach(key => {
+
+        if(!(key in config)) return;
+
+        const value = rawConfig[key];
+
+        if(typeof value === "object"){
+
+            Object.keys(value).forEach(valueKey => {
+                if(valueKey in config[key]){
+                    config[key][valueKey] = value[valueKey]
+                }
+            })
+        }else{
+            config[key] = value;
+        }
+    })
+
+    return config;
+}
+
+
+async function exists(target:string, createIfNotFound = false){
+
+    const result = await fs.exists(target);
+
+    if(!result && createIfNotFound){
+        await fs.createDir(target,{recursive: true});
+    }
+
+    return result;
+
+}
+
+async function writeConfig(){
+    await fs.writeTextFile(configFilePath, JSON.stringify(config));
+}
+
+async function save(){
+
+    config.isMaximized = await appWindow.isMaximized();
+    const {width, height} = await appWindow.innerSize()
+    const {x, y} = await appWindow.innerPosition();
+    config.bounds.size.width = width;
+    config.bounds.size.height = height;
+    config.bounds.position.x = x;
+    config.bounds.position.y = y;
+
+    await writeConfig();
+}
+
+async function close(){
+    await save();
+    await appWindow.close();
+}
+
+export {}

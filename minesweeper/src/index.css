@@ -216,7 +216,7 @@ body{
 
 .flag::after{
     content: "";
-    background-image: url(./resources/flag.svg);
+    background-image: url(./assets/flag.svg);
     width: 100%;
     height: 100%;
     background-repeat: no-repeat;
@@ -226,7 +226,7 @@ body{
 
 .burnt{
     background-color: #ad2929;
-    background-image: url(./resources/fire.svg);
+    background-image: url(./assets/fire.svg);
     background-repeat: no-repeat;
     background-position: center;
     position: absolute;
@@ -234,7 +234,7 @@ body{
 
 .mine{
     background-color: #fff;
-    background-image: url(./resources/fire.svg);
+    background-image: url(./assets/fire.svg);
     background-repeat: no-repeat;
     background-position: center;
     position: absolute;
@@ -245,7 +245,7 @@ body{
 }
 
 @keyframes AnimationName {
-    0%{outline: 2px solid #fff;outline-offset: -2px;};
+    0%{outline: 2px solid #fff;outline-offset: -2px;}
     /*50%{background-image: radial-gradient(circle, #b6dcfd, #b6dcfd, #b6dcfd, #b6dcfd, #b6dcfd);}*/
     100%{background-image: radial-gradient(circle, #b6dcfd, #9dd0fd, #84c3fc, #6ab6fc, #4ba9fb);}
 }

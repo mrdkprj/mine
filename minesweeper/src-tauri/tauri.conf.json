@@ -1,0 +1,68 @@
+{
+  "build": {
+    "beforeDevCommand": "yarn dev",
+    "beforeBuildCommand": "yarn buildts",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "minesweeper",
+    "version": "1.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "window":{
+        "all":true
+      },
+      "path": {
+        "all": true
+      },
+      "fs": {
+        "all":true,
+        "scope": ["**"]
+      },
+      "dialog":{
+        "all":true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "nsis",
+      "identifier": "com.minesweeper",
+      "icon": [
+        "icons/icon.ico"
+      ],
+      "windows": {
+        "nsis":{
+          "installMode":"currentUser",
+          "installerIcon": "icons/icon.ico"
+        }
+      }
+    },
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; media-src 'self' asset: https://asset.localhost"
+    },
+    "systemTray":{
+      "iconPath": "icons/icon.ico"
+    },
+    "windows": [
+      {
+        "label":"Main",
+        "fullscreen": false,
+        "resizable": true,
+        "maximizable":true,
+        "minimizable":true,
+        "closable":true,
+        "focus":true,
+        "visible":false,
+        "decorations":false,
+        "skipTaskbar":false,
+        "transparent":false,
+        "url":"src/index.html"
+      }
+    ]
+
+  }
+}

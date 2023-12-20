@@ -154,3 +154,7 @@ ipcMain.on("minimize", () => mainWindow.minimize())
 ipcMain.on("toggle-maximize", () => toggleMaximize())
 
 ipcMain.on("close", (e, data) => closeWindow(data))
+
+ipcMain.on("game-end", () => {
+    dialog.showMessageBox(mainWindow, {type:"info", message:"Done"})
+});
