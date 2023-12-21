@@ -216,7 +216,7 @@ body{
 
 .flag::after{
     content: "";
-    background-image: url(./assets/flag.svg);
+    background-image: url(/flag.svg);
     width: 100%;
     height: 100%;
     background-repeat: no-repeat;
@@ -226,7 +226,7 @@ body{
 
 .burnt{
     background-color: #ad2929;
-    background-image: url(./assets/fire.svg);
+    background-image: url(/fire.svg);
     background-repeat: no-repeat;
     background-position: center;
     position: absolute;
@@ -234,7 +234,7 @@ body{
 
 .mine{
     background-color: #fff;
-    background-image: url(./assets/fire.svg);
+    background-image: url(/fire.svg);
     background-repeat: no-repeat;
     background-position: center;
     position: absolute;
