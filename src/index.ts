@@ -174,7 +174,11 @@ const onWin = () => {
 }
 
 const reveal = () => {
-    mineCellIndices.forEach(i => cells[i].classList.add("burnt"))
+    mineCellIndices.forEach(i => {
+        if(!cells[i].classList.contains("flag")){
+            cells[i].classList.add("burnt")
+        }
+    })
 }
 
 const onCellClick = (e:MouseEvent) => {
