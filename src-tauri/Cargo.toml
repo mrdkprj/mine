@@ -1,23 +1,35 @@
 [package]
-name = "minesweeper"
+name = "mygames"
 version = "0.0.0"
-description = "minesweeper"
+description = "mygames"
 authors = ["mrdkprj"]
 license = "MIT"
 repository = ""
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = { version = "=2.5.3", features = [] }
 
 [dependencies]
-tauri = { version = "1.5", features = [ "protocol-asset", "system-tray", "fs-all", "dialog-all", "window-all", "path-all", "devtools"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+tauri = { version = "=2.9.4", features = [ "devtools", "protocol-asset"] }
+serde = { version = "1", features = ["derive"] }
+
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "mygames_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[profile.release]
+panic = "abort" # Strip expensive panic clean-up logic
+codegen-units = 1 # Compile crates one after another so the compiler can optimize better
+lto = true # Enables link to optimizations
+opt-level = "s" # Optimize for binary size
+strip = true # Remove debug symbols
