@@ -3,7 +3,7 @@
   "private": false,
   "version": "1.0.0",
   "type": "module",
-  "license":"MIT",
+  "license": "MIT",
   "author": {
     "name": "mrdkprj",
     "email": "mrdkprj@gmail.com"
@@ -17,7 +17,7 @@
     "release": "tauri build"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.5.0"
+    "@tauri-apps/api": "=2.9.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.5.0",
