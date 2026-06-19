@@ -2,9 +2,24 @@ const canvas = document.getElementById("tetris");
 const context = canvas.getContext("2d");
 const startBtn = document.getElementById("start-btn");
 
+const arena = createMatrix(12, 20);
+const player = { pos: { x: 0, y: 0 }, matrix: null, score: 0 };
+const shadowPlayer = { pos: { x: 0, y: 0 }, matrix: null, score: 0 };
+let gameOver = true;
+let started = false;
+
+const particles = [];
+let clearingRows = [];
+let clearAnimation = 0;
+const pieces = "ILJOTSZ";
+const colors = [null, "#FF0D72", "#0DC2FF", "#0DFF72", "#F538FF", "#FF8E0D", "#FFE138", "#3877FF", "#ccc", "#00000000"];
+
+let dropCounter = 0;
+const dropInterval = 1000;
+let lastTime = 0;
+
 context.scale(20, 20);
 
-// ========== パーティクルシステム ==========
 class Particle {
     constructor(x, y, color) {
         this.x = x;
@@ -35,15 +50,6 @@ class Particle {
     }
 }
 
-const particles = [];
-let clearingRows = [];
-let clearAnimation = 0;
-let screenShake = { x: 0, y: 0, intensity: 0 };
-let comboText = { text: "", alpha: 0, y: 10 };
-
-// ========== テトリミノの色 ==========
-const colors = [null, "#FF0D72", "#0DC2FF", "#0DFF72", "#F538FF", "#FF8E0D", "#FFE138", "#3877FF", "#ccc"];
-
 // ========== 列消し ==========
 function arenaSweep() {
     clearingRows = [];
@@ -63,12 +69,6 @@ function arenaSweep() {
 
     if (clearingRows.length > 0) {
         clearAnimation = 30;
-        screenShake.intensity = 0.2 + clearingRows.length * 0.1;
-
-        const comboTexts = ["SINGLE!", "DOUBLE!!", "TRIPLE!!!", "TETRIS!!!!"];
-        comboText.text = comboTexts[Math.min(clearingRows.length - 1, 3)];
-        comboText.alpha = 1;
-        comboText.y = 10;
 
         clearingRows.forEach((y) => {
             for (let x = 0; x < arena[y].length; ++x) {
@@ -107,25 +107,6 @@ function collide(arena, player) {
         }
     }
     return false;
-}
-
-function collide2(arena, player) {
-    if (player.pos.y > 50) return true;
-    let cnt = 0;
-    const [m, o] = [player.matrix, player.pos];
-    for (let y = 0; y < m.length; ++y) {
-        for (let x = 0; x < m[y].length; ++x) {
-            if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
-                // console.log(arena[y + o.y]);
-                // if (arena[y + o.y]) {
-                //     console.log(arena[y + o.y][x + o.x]);
-                // }
-                cnt++;
-            }
-        }
-    }
-
-    return cnt != 0;
 }
 
 // ========== 盤面作成 ==========
@@ -188,13 +169,6 @@ function createPiece(type) {
 function draw() {
     context.save();
 
-    if (screenShake.intensity > 0) {
-        screenShake.x = (Math.random() - 0.5) * screenShake.intensity;
-        screenShake.y = (Math.random() - 0.5) * screenShake.intensity;
-        context.translate(screenShake.x, screenShake.y);
-        screenShake.intensity *= 0.9;
-    }
-
     context.fillStyle = "#000";
     context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -216,20 +190,9 @@ function draw() {
     drawMatrix(arena, { x: 0, y: 0 });
     drawMatrix(player.matrix, player.pos);
 
-    if (started) {
+    if (started && shadowPlayer.matrix.length) {
         shadowPlayer.pos = { ...player.pos };
-        const pos = [];
-        for (let i = player.pos.y; i <= 20; i++) {
-            if (collide2(arena, shadowPlayer)) {
-                pos.push(i);
-            }
-            shadowPlayer.pos.y++;
-        }
-        if (pos.length) {
-            console.log(pos);
-        }
-        shadowPlayer.pos = { ...player.pos };
-        while (!collide2(arena, shadowPlayer)) {
+        while (!collide(arena, shadowPlayer)) {
             shadowPlayer.pos.y++;
         }
         shadowPlayer.pos.y--;
@@ -250,18 +213,6 @@ function draw() {
     particles.forEach((particle) => {
         particle.draw(context);
     });
-
-    if (comboText.alpha > 0) {
-        context.save();
-        context.globalAlpha = comboText.alpha;
-        context.fillStyle = "#FFD700";
-        context.shadowBlur = 0.5;
-        context.shadowColor = "#FFD700";
-        context.font = "bold 1px Arial";
-        context.textAlign = "center";
-        context.fillText(comboText.text, 6, comboText.y);
-        context.restore();
-    }
 
     context.restore();
 }
@@ -302,7 +253,6 @@ function merge(arena, player) {
             }
         });
     });
-    screenShake.intensity = 0.05;
 }
 
 /* Move down by changing position y */
@@ -323,10 +273,13 @@ function playerHardDrop() {
         player.pos.y++;
     }
     player.pos.y--;
-    merge(arena, player);
-    playerReset();
-    arenaSweep();
-    dropCounter = 0;
+
+    shadowPlayer.matrix = [];
+
+    // merge(arena, player);
+    // playerReset();
+    // arenaSweep();
+    // dropCounter = 0;
 }
 
 /* Move left/right by changing position x*/
@@ -338,7 +291,6 @@ function playerMove(dir) {
 }
 
 function playerReset() {
-    const pieces = "ILJOTSZ";
     player.matrix = createPiece(pieces[(pieces.length * Math.random()) | 0]);
     player.pos.y = 0;
     player.pos.x = ((arena[0].length / 2) | 0) - ((player.matrix[0].length / 2) | 0);
@@ -350,7 +302,7 @@ function playerReset() {
     shadowPlayer.matrix = [];
     player.matrix.forEach((row, y) => {
         shadowPlayer.matrix.push([]);
-        row.forEach((value, x) => {
+        row.forEach((value) => {
             if (value !== 0) {
                 shadowPlayer.matrix[y].push(8);
             } else {
@@ -390,11 +342,6 @@ function rotate(matrix, dir) {
     }
 }
 
-// ========== ゲームループ ==========
-let dropCounter = 0;
-let dropInterval = 1000;
-let lastTime = 0;
-
 function update(time = 0) {
     if (gameOver) return;
 
@@ -406,11 +353,6 @@ function update(time = 0) {
         if (particles[i].life <= 0) {
             particles.splice(i, 1);
         }
-    }
-
-    if (comboText.alpha > 0) {
-        comboText.alpha -= 0.015;
-        comboText.y -= 0.05;
     }
 
     if (clearAnimation > 0) {
@@ -428,13 +370,6 @@ function update(time = 0) {
     draw();
     requestAnimationFrame(update);
 }
-
-// ========== 初期化 ==========
-const arena = createMatrix(12, 20);
-const player = { pos: { x: 0, y: 0 }, matrix: null, score: 0 };
-const shadowPlayer = { pos: { x: 0, y: 0 }, matrix: null, score: 0 };
-let gameOver = true;
-let started = false;
 
 document.addEventListener("keydown", (e) => {
     if (!started) return;
