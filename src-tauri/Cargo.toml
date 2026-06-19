@@ -8,12 +8,11 @@ repository = ""
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "=2.5.3", features = [] }
+tauri-build = { version = "~2.6.0", features = [] }
 
 [dependencies]
-tauri = { version = "=2.9.4", features = [ "devtools", "protocol-asset"] }
+tauri = { version = "~2.11.0", features = [ "devtools", "protocol-asset"] }
 serde = { version = "1", features = ["derive"] }
-
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
